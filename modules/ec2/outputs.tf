@@ -1,9 +1,9 @@
 output "ec2_instance_id" {
-  value = aws_instance.ec2_instance.id
+  value = aws_instance.app.id
 }
 
 output "ec2_public_dns" {
-  value = aws_instance.ec2_instance.public_dns
+  value = aws_instance.app.public_dns
 }
 
 output "ec2_elastic_ip" {

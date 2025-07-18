@@ -3,6 +3,13 @@ resource "aws_key_pair" "ec2_key" {
   public_key = var.public_key
 }
 
+resource "aws_eip" "ec2_eip" {
+  instance = aws_instance.app.id
+  tags = {
+    Name = "${var.project}-${var.environment}-${var.component}-eip"
+  }
+}
+
 resource "aws_security_group" "ec2_sg" {
   name        = "${var.project}-${var.environment}-${var.component}-sg"
   description = "Allow SSH and app access"
@@ -34,24 +41,19 @@ resource "aws_security_group" "ec2_sg" {
   }
 }
 
-resource "aws_eip" "ec2_eip" {
-  instance = aws_instance.ec2_instance.id
-  tags = {
-    Name = "${var.project}-${var.environment}-${var.component}-eip"
-  }
-}
-
-
-resource "aws_instance" "ec2_instance" {
+resource "aws_instance" "app" {
   ami                         = var.ami_id
   instance_type               = var.instance_type
   subnet_id                   = var.subnet_id
-  vpc_security_group_ids      = [aws_security_group.ec2_sg.id]
+  associate_public_ip_address = var.associate_public_ip_address
   key_name                    = aws_key_pair.ec2_key.key_name
-  associate_public_ip_address = true
   user_data                   = var.user_data
+  vpc_security_group_ids      = [aws_security_group.ec2_sg.id]
 
   tags = {
-    Name = "${var.project}-${var.environment}-${var.component}-ec2"
+    Name        = "${var.environment}-${var.component}-${var.project}"
+    Environment = var.environment
+    Component   = var.component
+    Project     = var.project
   }
 }

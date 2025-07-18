@@ -1,24 +1,58 @@
+variable "ami_id" {
+  type = string
+}
+
+variable "instance_type" {
+  type = string
+}
+
+variable "subnet_id" {
+  type = string
+}
+
+variable "associate_public_ip_address" {
+  type    = bool
+  default = true
+}
+
+variable "key_name" {
+  type = string
+}
+
+variable "user_data" {
+  type = string
+}
+
 variable "project" {
-  description = "Name of the project"
-  type        = string
+  type = string
 }
 
 variable "environment" {
-  description = "Environment name (e.g., dev, prod)"
-  type        = string
+  type = string
 }
 
 variable "component" {
-  description = "Component name (e.g., ec2, web, app)"
-  type        = string
+  type = string
 }
 
-# Keep the rest same:
-variable "ami_id"        {}
-variable "instance_type" {}
-variable "vpc_id"        {}
-variable "subnet_id"     {}
-variable "key_name"      {}
-variable "public_key"    {}
-variable "user_data"     {}
-variable "app_port"      {}
+# modules/ec2/outputs.tf
+
+output "instance_id" {
+  value = aws_instance.app.id
+}
+
+output "public_ip" {
+  value = aws_instance.app.public_ip
+}
+
+variable "vpc_id" {
+  type = string
+}
+
+variable "public_key" {
+  type = string
+}
+
+variable "app_port" {
+  type = number
+}

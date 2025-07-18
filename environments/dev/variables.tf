@@ -1,0 +1,34 @@
+variable "ami_id" {
+  type    = string
+  default = "ami-0c1a7f89451184c8b"
+}
+
+variable "instance_type" {
+  type    = string
+  default = "t2.micro"
+}
+
+variable "vpc_cidr" {
+  type    = string
+  default = "10.0.0.0/16"
+}
+
+variable "public_subnet_cidrs" {
+  type    = list(string)
+  default = ["10.0.1.0/24", "10.0.2.0/24"]
+}
+
+variable "private_subnet_cidrs" {
+  type    = list(string)
+  default = ["10.0.11.0/24", "10.0.12.0/24"]
+}
+
+variable "azs" {
+  type    = list(string)
+  default = ["ap-south-1a", "ap-south-1b"]
+}
+
+variable "env" {
+  type    = string
+  default = "dev"
+}
