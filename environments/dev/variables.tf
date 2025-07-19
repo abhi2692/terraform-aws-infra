@@ -32,3 +32,15 @@ variable "env" {
   type    = string
   default = "dev"
 }
+
+# ECS Fargate specific variables
+
+variable "enable_ecs_fargate" {
+  type    = bool
+  default = false
+}
+
+variable "env" {
+  type        = string
+  description = "Deployment environment name (e.g., dev, staging, prod)"
+}
