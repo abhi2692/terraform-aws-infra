@@ -33,6 +33,11 @@ variable "env" {
   default = "dev"
 }
 
+variable "enable_ec2" {
+  type    = bool
+  default = false
+}
+
 # ECS Fargate specific variables
 
 variable "enable_ecs_fargate" {
@@ -40,7 +45,9 @@ variable "enable_ecs_fargate" {
   default = false
 }
 
-variable "env" {
-  type        = string
-  description = "Deployment environment name (e.g., dev, staging, prod)"
+# ALB specific variables
+
+variable "enable_alb" {
+  type    = bool
+  default = true
 }

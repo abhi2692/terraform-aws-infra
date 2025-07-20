@@ -18,18 +18,6 @@ variable "memory" {
   default     = "512"
 }
 
-variable "container_image" {
-  type        = string
-  description = "Container image URI"
-  default     = "public.ecr.aws/nginx/nginx:latest"
-}
-
-variable "container_port" {
-  type        = number
-  description = "Port container listens on"
-  default     = 80
-}
-
 variable "vpc_id" {
   type = string
 }

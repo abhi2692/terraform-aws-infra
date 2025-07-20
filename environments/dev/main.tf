@@ -42,6 +42,17 @@ module "web_ec2" {
   public_key = file("~/.ssh/id_rsa.pub")
   user_data                      = file("${path.module}/scripts/bootstrap.sh")
   app_port  = 80
+  count = var.enable_ec2 ? 1 : 0
+}
+
+module "alb" {
+  count              = var.enable_alb ? 1 : 0
+  source            = "../../modules/alb"
+  project           = "myapp"
+  environment       = var.env
+  vpc_id            = module.vpc.vpc_id
+  public_subnet_ids = module.vpc.public_subnet_ids
+  target_port       = 80
 }
 
 module "ecs_fargate" {
@@ -49,18 +60,10 @@ module "ecs_fargate" {
 
   project           = "myapp"
   environment       = var.env
-
-  # These values are only used during initial bootstrapping or optional full infra deployment
-  container_image   = "123456789012.dkr.ecr.ap-south-1.amazonaws.com/nodejs-app:latest"
-  container_port    = 80
   vpc_id            = module.vpc.vpc_id
-  private_subnets   = module.vpc.private_subnets
-  target_group_arn  = module.alb.target_group_arn
+  private_subnets   = module.vpc.private_subnet_ids
+  target_group_arn  = module.alb[0].target_group_arn
   desired_count     = 2
-
-  # Only needed if you want to use Terraform to create task def and service
-  create_task_definition = false
-  create_service         = false
 
   count = var.enable_ecs_fargate ? 1 : 0
 }

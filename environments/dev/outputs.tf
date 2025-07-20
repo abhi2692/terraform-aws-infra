@@ -11,13 +11,17 @@ output "private_subnet_ids" {
 }
 
 output "ec2_instance_id" {
-  value = module.web_ec2.ec2_instance_id
+  description = "ID of the EC2 instance"
+  value       = var.enable_ec2 ? module.web_ec2[0].ec2_instance_id : null
 }
 
 output "ec2_public_dns" {
-  value = module.web_ec2.ec2_public_dns
+  description = "Public DNS of the EC2 instance"
+  value       = var.enable_ec2 ? module.web_ec2[0].ec2_public_dns : null
 }
 
 output "ec2_elastic_ip" {
-  value = module.web_ec2.ec2_elastic_ip
+  description = "Elastic IP of the EC2 instance"
+  value       = var.enable_ec2 ? module.web_ec2[0].ec2_elastic_ip : null
 }
+
