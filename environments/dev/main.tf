@@ -53,6 +53,7 @@ module "alb" {
   vpc_id            = module.vpc.vpc_id
   public_subnet_ids = module.vpc.public_subnet_ids
   target_port       = 80
+  target_type = "ip" # Use "ip" for Fargate tasks
 }
 
 data "aws_ecs_task_definition" "from_github" {
@@ -71,7 +72,7 @@ module "ecs_fargate" {
 
   task_definition_arn = data.aws_ecs_task_definition.from_github.arn
   container_name      = "myapp"
-  container_port      = 3000
+  container_port      = 80
 
   desired_count = 2
   count         = var.enable_ecs_fargate ? 1 : 0
