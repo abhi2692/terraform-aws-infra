@@ -12,3 +12,9 @@ variable "enable_alb" {
   type    = bool
   default = true
 }
+
+variable "target_type" {
+  description = "The target type for the target group (ip for Fargate, instance for EC2)"
+  type        = string
+  default     = "ip"
+}

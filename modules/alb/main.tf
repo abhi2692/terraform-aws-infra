@@ -39,6 +39,7 @@ resource "aws_alb_target_group" "mytg" {
   port     = var.target_port
   protocol = "HTTP"
   vpc_id   = var.vpc_id
+  target_type = var.target_type # Use "ip" for Fargate tasks
 
   health_check {
     path                = "/"
@@ -52,7 +53,7 @@ resource "aws_alb_target_group" "mytg" {
     Name        = "${var.project}-${var.environment}-tg"
     Environment = var.environment
     Project     = var.project
-  }
+  } 
 }
 
 resource "aws_alb_listener" "myalblistener" {

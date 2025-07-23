@@ -9,3 +9,8 @@ output "alb_sg_id" {
 output "target_group_arn" {
   value = aws_alb_target_group.mytg.arn
 }
+
+output "security_group_id" {
+  description = "The security group ID of the ALB"
+  value       = aws_security_group.alb_sg.id
+}
