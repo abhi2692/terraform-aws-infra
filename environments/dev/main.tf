@@ -55,6 +55,10 @@ module "alb" {
   target_port       = 80
 }
 
+data "aws_ecs_task_definition" "from_github" {
+  task_definition = "myapp-task"  # this is the ECS task family name
+}
+
 module "ecs_fargate" {
   source = "../../modules/ecs_fargate"
 
@@ -62,8 +66,13 @@ module "ecs_fargate" {
   environment       = var.env
   vpc_id            = module.vpc.vpc_id
   private_subnets   = module.vpc.private_subnet_ids
+  alb_security_group_id = module.alb[0].security_group_id
   target_group_arn  = module.alb[0].target_group_arn
-  desired_count     = 2
 
-  count = var.enable_ecs_fargate ? 1 : 0
+  task_definition_arn = data.aws_ecs_task_definition.from_github.arn
+  container_name      = "myapp"
+  container_port      = 3000
+
+  desired_count = 2
+  count         = var.enable_ecs_fargate ? 1 : 0
 }
