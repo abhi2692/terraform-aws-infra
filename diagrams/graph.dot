@@ -1,0 +1,114 @@
+digraph G {
+  rankdir = "RL";
+  node [shape = rect, fontname = "sans-serif"];
+  "data.aws_ecs_task_definition.from_github" [label="data.aws_ecs_task_definition.from_github"];
+  "data.aws_ssm_parameter.al2_ami" [label="data.aws_ssm_parameter.al2_ami"];
+  subgraph "cluster_module.alb" {
+    label = "module.alb"
+    fontname = "sans-serif"
+    "module.alb.aws_alb.myalb" [label="aws_alb.myalb"];
+    "module.alb.aws_alb_listener.myalblistener" [label="aws_alb_listener.myalblistener"];
+    "module.alb.aws_alb_target_group.mytg" [label="aws_alb_target_group.mytg"];
+    "module.alb.aws_security_group.alb_sg" [label="aws_security_group.alb_sg"];
+  }
+  subgraph "cluster_module.ecs_fargate" {
+    label = "module.ecs_fargate"
+    fontname = "sans-serif"
+    "module.ecs_fargate.data.aws_iam_policy_document.ecs_task_assume_role" [label="data.aws_iam_policy_document.ecs_task_assume_role"];
+    "module.ecs_fargate.aws_ecs_cluster.app_cluster" [label="aws_ecs_cluster.app_cluster"];
+    "module.ecs_fargate.aws_ecs_service.myappservice" [label="aws_ecs_service.myappservice"];
+    "module.ecs_fargate.aws_iam_role.ecs_task_execution_role" [label="aws_iam_role.ecs_task_execution_role"];
+    "module.ecs_fargate.aws_iam_role_policy_attachment.task_execution_attachment" [label="aws_iam_role_policy_attachment.task_execution_attachment"];
+    "module.ecs_fargate.aws_security_group.ecs_sg" [label="aws_security_group.ecs_sg"];
+  }
+  subgraph "cluster_module.eks" {
+    label = "module.eks"
+    fontname = "sans-serif"
+    "module.eks.aws_eks_cluster.mycluster" [label="aws_eks_cluster.mycluster"];
+    "module.eks.aws_eks_node_group.mynode_group" [label="aws_eks_node_group.mynode_group"];
+    "module.eks.aws_iam_role.eks_cluster" [label="aws_iam_role.eks_cluster"];
+    "module.eks.aws_iam_role.eks_node" [label="aws_iam_role.eks_node"];
+    "module.eks.aws_iam_role_policy_attachment.eks_cluster_AmazonEKSClusterPolicy" [label="aws_iam_role_policy_attachment.eks_cluster_AmazonEKSClusterPolicy"];
+    "module.eks.aws_iam_role_policy_attachment.eks_cluster_VPCResourceController" [label="aws_iam_role_policy_attachment.eks_cluster_VPCResourceController"];
+    "module.eks.aws_iam_role_policy_attachment.eks_node_AmazonEC2ContainerRegistryReadOnly" [label="aws_iam_role_policy_attachment.eks_node_AmazonEC2ContainerRegistryReadOnly"];
+    "module.eks.aws_iam_role_policy_attachment.eks_node_AmazonEKSWorkerNodePolicy" [label="aws_iam_role_policy_attachment.eks_node_AmazonEKSWorkerNodePolicy"];
+    "module.eks.aws_iam_role_policy_attachment.eks_node_AmazonEKS_CNI_Policy" [label="aws_iam_role_policy_attachment.eks_node_AmazonEKS_CNI_Policy"];
+  }
+  subgraph "cluster_module.vpc" {
+    label = "module.vpc"
+    fontname = "sans-serif"
+    "module.vpc.aws_eip.nat" [label="aws_eip.nat"];
+    "module.vpc.aws_internet_gateway.igw" [label="aws_internet_gateway.igw"];
+    "module.vpc.aws_nat_gateway.nat" [label="aws_nat_gateway.nat"];
+    "module.vpc.aws_route_table.private" [label="aws_route_table.private"];
+    "module.vpc.aws_route_table.public" [label="aws_route_table.public"];
+    "module.vpc.aws_route_table_association.private_a" [label="aws_route_table_association.private_a"];
+    "module.vpc.aws_route_table_association.private_b" [label="aws_route_table_association.private_b"];
+    "module.vpc.aws_route_table_association.public_a" [label="aws_route_table_association.public_a"];
+    "module.vpc.aws_route_table_association.public_b" [label="aws_route_table_association.public_b"];
+    "module.vpc.aws_subnet.private_a" [label="aws_subnet.private_a"];
+    "module.vpc.aws_subnet.private_b" [label="aws_subnet.private_b"];
+    "module.vpc.aws_subnet.public_a" [label="aws_subnet.public_a"];
+    "module.vpc.aws_subnet.public_b" [label="aws_subnet.public_b"];
+    "module.vpc.aws_vpc.main" [label="aws_vpc.main"];
+  }
+  subgraph "cluster_module.web_ec2" {
+    label = "module.web_ec2"
+    fontname = "sans-serif"
+    "module.web_ec2.aws_eip.ec2_eip" [label="aws_eip.ec2_eip"];
+    "module.web_ec2.aws_instance.app" [label="aws_instance.app"];
+    "module.web_ec2.aws_key_pair.ec2_key" [label="aws_key_pair.ec2_key"];
+    "module.web_ec2.aws_security_group.ec2_sg" [label="aws_security_group.ec2_sg"];
+  }
+  "module.alb.aws_alb.myalb" -> "module.alb.aws_security_group.alb_sg";
+  "module.alb.aws_alb.myalb" -> "module.vpc.aws_subnet.public_a";
+  "module.alb.aws_alb.myalb" -> "module.vpc.aws_subnet.public_b";
+  "module.alb.aws_alb_listener.myalblistener" -> "module.alb.aws_alb.myalb";
+  "module.alb.aws_alb_listener.myalblistener" -> "module.alb.aws_alb_target_group.mytg";
+  "module.alb.aws_alb_target_group.mytg" -> "module.vpc.aws_vpc.main";
+  "module.alb.aws_security_group.alb_sg" -> "module.vpc.aws_vpc.main";
+  "module.ecs_fargate.aws_ecs_service.myappservice" -> "data.aws_ecs_task_definition.from_github";
+  "module.ecs_fargate.aws_ecs_service.myappservice" -> "module.alb.aws_alb_target_group.mytg";
+  "module.ecs_fargate.aws_ecs_service.myappservice" -> "module.ecs_fargate.aws_ecs_cluster.app_cluster";
+  "module.ecs_fargate.aws_ecs_service.myappservice" -> "module.ecs_fargate.aws_security_group.ecs_sg";
+  "module.ecs_fargate.aws_ecs_service.myappservice" -> "module.vpc.aws_subnet.private_a";
+  "module.ecs_fargate.aws_ecs_service.myappservice" -> "module.vpc.aws_subnet.private_b";
+  "module.ecs_fargate.aws_iam_role.ecs_task_execution_role" -> "module.ecs_fargate.data.aws_iam_policy_document.ecs_task_assume_role";
+  "module.ecs_fargate.aws_iam_role_policy_attachment.task_execution_attachment" -> "module.ecs_fargate.aws_iam_role.ecs_task_execution_role";
+  "module.ecs_fargate.aws_security_group.ecs_sg" -> "module.alb.aws_security_group.alb_sg";
+  "module.eks.aws_eks_cluster.mycluster" -> "module.eks.aws_iam_role.eks_cluster";
+  "module.eks.aws_eks_cluster.mycluster" -> "module.vpc.aws_subnet.private_a";
+  "module.eks.aws_eks_cluster.mycluster" -> "module.vpc.aws_subnet.private_b";
+  "module.eks.aws_eks_node_group.mynode_group" -> "module.eks.aws_eks_cluster.mycluster";
+  "module.eks.aws_eks_node_group.mynode_group" -> "module.eks.aws_iam_role.eks_node";
+  "module.eks.aws_iam_role_policy_attachment.eks_cluster_AmazonEKSClusterPolicy" -> "module.eks.aws_iam_role.eks_cluster";
+  "module.eks.aws_iam_role_policy_attachment.eks_cluster_VPCResourceController" -> "module.eks.aws_iam_role.eks_cluster";
+  "module.eks.aws_iam_role_policy_attachment.eks_node_AmazonEC2ContainerRegistryReadOnly" -> "module.eks.aws_iam_role.eks_node";
+  "module.eks.aws_iam_role_policy_attachment.eks_node_AmazonEKSWorkerNodePolicy" -> "module.eks.aws_iam_role.eks_node";
+  "module.eks.aws_iam_role_policy_attachment.eks_node_AmazonEKS_CNI_Policy" -> "module.eks.aws_iam_role.eks_node";
+  "module.vpc.aws_internet_gateway.igw" -> "module.vpc.aws_vpc.main";
+  "module.vpc.aws_nat_gateway.nat" -> "module.vpc.aws_eip.nat";
+  "module.vpc.aws_nat_gateway.nat" -> "module.vpc.aws_internet_gateway.igw";
+  "module.vpc.aws_nat_gateway.nat" -> "module.vpc.aws_subnet.public_a";
+  "module.vpc.aws_route_table.private" -> "module.vpc.aws_nat_gateway.nat";
+  "module.vpc.aws_route_table.public" -> "module.vpc.aws_internet_gateway.igw";
+  "module.vpc.aws_route_table_association.private_a" -> "module.vpc.aws_route_table.private";
+  "module.vpc.aws_route_table_association.private_a" -> "module.vpc.aws_subnet.private_a";
+  "module.vpc.aws_route_table_association.private_b" -> "module.vpc.aws_route_table.private";
+  "module.vpc.aws_route_table_association.private_b" -> "module.vpc.aws_subnet.private_b";
+  "module.vpc.aws_route_table_association.public_a" -> "module.vpc.aws_route_table.public";
+  "module.vpc.aws_route_table_association.public_a" -> "module.vpc.aws_subnet.public_a";
+  "module.vpc.aws_route_table_association.public_b" -> "module.vpc.aws_route_table.public";
+  "module.vpc.aws_route_table_association.public_b" -> "module.vpc.aws_subnet.public_b";
+  "module.vpc.aws_subnet.private_a" -> "module.vpc.aws_vpc.main";
+  "module.vpc.aws_subnet.private_b" -> "module.vpc.aws_vpc.main";
+  "module.vpc.aws_subnet.public_a" -> "module.vpc.aws_vpc.main";
+  "module.vpc.aws_subnet.public_b" -> "module.vpc.aws_vpc.main";
+  "module.web_ec2.aws_eip.ec2_eip" -> "module.web_ec2.aws_instance.app";
+  "module.web_ec2.aws_instance.app" -> "data.aws_ssm_parameter.al2_ami";
+  "module.web_ec2.aws_instance.app" -> "module.vpc.aws_subnet.public_a";
+  "module.web_ec2.aws_instance.app" -> "module.vpc.aws_subnet.public_b";
+  "module.web_ec2.aws_instance.app" -> "module.web_ec2.aws_key_pair.ec2_key";
+  "module.web_ec2.aws_instance.app" -> "module.web_ec2.aws_security_group.ec2_sg";
+  "module.web_ec2.aws_security_group.ec2_sg" -> "module.vpc.aws_vpc.main";
+}

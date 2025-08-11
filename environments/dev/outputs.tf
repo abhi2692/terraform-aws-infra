@@ -25,3 +25,17 @@ output "ec2_elastic_ip" {
   value       = var.enable_ec2 ? module.web_ec2[0].ec2_elastic_ip : null
 }
 
+# EKS Outputs
+
+output "eks_cluster_name" {
+  value = module.eks.eks_cluster_name
+}
+
+output "eks_cluster_role_arn" {
+  value = module.eks.eks_cluster_iam_role_arn
+}
+
+output "eks_node_role_arn" {
+  value = module.eks.eks_node_iam_role_arn
+}
+

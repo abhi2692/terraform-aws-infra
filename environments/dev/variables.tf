@@ -51,3 +51,23 @@ variable "enable_alb" {
   type    = bool
   default = true
 }
+
+# EKS specific variables
+
+variable "create_eks" {
+  description = "Whether to create EKS resources"
+  type        = bool
+  default     = true
+}
+
+variable "cluster_name" {
+  description = "Name of the EKS Cluster"
+  type        = string
+  default     = "dev-cluster"
+}
+
+variable "kubernetes_version" {
+  description = "K8s version"
+  type        = string
+  default     = "1.29"
+}
