@@ -12,7 +12,7 @@ on:
       - main
 
 env:
-  TF_WORKING_DIR: terraform-aws-infra/environments/dev
+  TF_WORKING_DIR: environments/dev
 
 jobs:
   terraform:
