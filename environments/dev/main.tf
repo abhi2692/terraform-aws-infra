@@ -39,7 +39,7 @@ module "web_ec2" {
   subnet_id                   = module.vpc.public_subnet_ids[0]
   associate_public_ip_address = true
   key_name                    = "myapp-dev-key"
-  public_key                  = file("~/.ssh/id_rsa.pub")
+  public_key                  = var.public_key
   user_data                   = file("${path.module}/scripts/bootstrap.sh")
   app_port                    = 80
   count                       = var.enable_ec2 ? 1 : 0

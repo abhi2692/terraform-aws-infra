@@ -1,3 +1,8 @@
+variable "public_key" {
+  description = "SSH public key"
+  type        = string
+}
+
 variable "ami_id" {
   type    = string
   default = "ami-0c1a7f89451184c8b"
