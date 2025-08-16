@@ -1,8 +1,3 @@
-resource "aws_key_pair" "ec2_key" {
-  key_name   = var.key_name
-  public_key = var.public_key
-}
-
 resource "aws_eip" "ec2_eip" {
   instance = aws_instance.app.id
   tags = {
