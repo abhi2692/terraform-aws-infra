@@ -11,6 +11,12 @@ terraform {
   }
 }
 
+resource "aws_key_pair" "main" {
+  key_name   = "myapp-dev-key"
+  public_key = var.public_key
+}
+
+
 module "vpc" {
   source               = "../../modules/vpc"
   vpc_cidr             = var.vpc_cidr
@@ -38,7 +44,7 @@ module "web_ec2" {
   instance_type               = var.instance_type
   subnet_id                   = module.vpc.public_subnet_ids[0]
   associate_public_ip_address = true
-  key_name                    = "myapp-dev-key"
+  key_name                    = aws_key_pair.main.key_name
   public_key                  = var.public_key
   user_data                   = file("${path.module}/scripts/bootstrap.sh")
   app_port                    = 80
@@ -55,7 +61,7 @@ module "bastion_ec2" {
   instance_type               = "t3.micro" # or your preferred type
   subnet_id                   = module.vpc.public_subnet_ids[0]
   associate_public_ip_address = true
-  key_name                    = "myapp-dev-key"
+  key_name                    = aws_key_pair.main.key_name
   public_key                  = var.public_key
   user_data                   = "" # No user data for bastion
   app_port                    = 22 # SSH only
