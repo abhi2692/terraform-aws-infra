@@ -1,3 +1,8 @@
+variable "key_name" {
+  description = "Name of the SSH key pair"
+  type        = string
+}
+
 variable "ami_id" {
   type = string
 }
@@ -33,16 +38,6 @@ variable "environment" {
 
 variable "component" {
   type = string
-}
-
-# modules/ec2/outputs.tf
-
-output "instance_id" {
-  value = aws_instance.app.id
-}
-
-output "public_ip" {
-  value = aws_instance.app.public_ip
 }
 
 variable "vpc_id" {

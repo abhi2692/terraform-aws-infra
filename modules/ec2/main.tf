@@ -41,7 +41,7 @@ resource "aws_instance" "app" {
   instance_type               = var.instance_type
   subnet_id                   = var.subnet_id
   associate_public_ip_address = var.associate_public_ip_address
-  key_name                    = aws_key_pair.ec2_key.key_name
+  key_name                    = var.key_name
   user_data                   = var.user_data
   vpc_security_group_ids      = [aws_security_group.ec2_sg.id]
 

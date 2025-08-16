@@ -12,4 +12,3 @@ output "ec2_elastic_ip" {
   description = "Elastic IP assigned to the EC2 instance"
   value       = aws_eip.ec2_eip.public_ip
 }
-
