@@ -1,4 +1,4 @@
-resource aws_security_group alb_sg {
+resource "aws_security_group" "alb_sg" {
   name        = "${var.project}-${var.environment}-alb-sg"
   description = "Security group for ALB"
   vpc_id      = var.vpc_id
@@ -19,26 +19,26 @@ resource aws_security_group alb_sg {
 }
 
 resource "aws_alb" "myalb" {
-    name               = "${var.project}-${var.environment}-alb"
-    internal           = false
-    load_balancer_type = "application"
-    security_groups    = [aws_security_group.alb_sg.id]
-    subnets            = var.public_subnet_ids
-    
-    enable_deletion_protection = false
-    
-    tags = {
-        Name        = "${var.project}-${var.environment}-alb"
-        Environment = var.environment
-        Project     = var.project
-    }
+  name               = "${var.project}-${var.environment}-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.alb_sg.id]
+  subnets            = var.public_subnet_ids
+
+  enable_deletion_protection = false
+
+  tags = {
+    Name        = "${var.project}-${var.environment}-alb"
+    Environment = var.environment
+    Project     = var.project
+  }
 }
 
 resource "aws_alb_target_group" "mytg" {
-  name     = "${var.project}-${var.environment}-tg"
-  port     = var.target_port
-  protocol = "HTTP"
-  vpc_id   = var.vpc_id
+  name        = "${var.project}-${var.environment}-tg"
+  port        = var.target_port
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
   target_type = var.target_type # Use "ip" for Fargate tasks
 
   health_check {
@@ -53,7 +53,7 @@ resource "aws_alb_target_group" "mytg" {
     Name        = "${var.project}-${var.environment}-tg"
     Environment = var.environment
     Project     = var.project
-  } 
+  }
 }
 
 resource "aws_alb_listener" "myalblistener" {
@@ -71,6 +71,6 @@ resource "aws_alb_listener" "myalblistener" {
     Environment = var.environment
     Project     = var.project
   }
-  
+
 }
 

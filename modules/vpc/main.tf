@@ -43,9 +43,9 @@ resource "aws_subnet" "public_b" {
 # Create private subnets in multiple availability zones
 
 resource "aws_subnet" "private_a" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = var.private_subnet_cidrs[0]
-  availability_zone       = var.azs[0]
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.private_subnet_cidrs[0]
+  availability_zone = var.azs[0]
 
   tags = {
     Name = "${var.env}-private-a"
@@ -53,9 +53,9 @@ resource "aws_subnet" "private_a" {
 }
 
 resource "aws_subnet" "private_b" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = var.private_subnet_cidrs[1]
-  availability_zone       = var.azs[1]
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.private_subnet_cidrs[1]
+  availability_zone = var.azs[1]
 
   tags = {
     Name = "${var.env}-private-b"
@@ -79,7 +79,7 @@ resource "aws_nat_gateway" "nat" {
     Name = "${var.env}-nat-gateway"
   }
 
-  depends_on = [ aws_internet_gateway.igw ]
+  depends_on = [aws_internet_gateway.igw]
 }
 
 # Create Route Tables for public subnets

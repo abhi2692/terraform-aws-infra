@@ -59,13 +59,13 @@ resource "aws_iam_role_policy_attachment" "eks_node_AmazonEKS_CNI_Policy" {
 
 resource "aws_eks_cluster" "mycluster" {
 
-    count = var.create_eks ? 1 : 0
+  count    = var.create_eks ? 1 : 0
   name     = var.cluster_name
-  version = var.kubernetes_version != null ? var.kubernetes_version : null
+  version  = var.kubernetes_version != null ? var.kubernetes_version : null
   role_arn = aws_iam_role.eks_cluster[0].arn
 
   vpc_config {
-    subnet_ids = var.subnet_ids
+    subnet_ids              = var.subnet_ids
     endpoint_private_access = true
     endpoint_public_access  = false
   }
@@ -77,18 +77,18 @@ resource "aws_eks_cluster" "mycluster" {
 
 resource "aws_eks_node_group" "mynode_group" {
 
-    count = var.create_eks ? 1 : 0
-    cluster_name    = aws_eks_cluster.mycluster[0].name
-    version = var.kubernetes_version != null ? var.kubernetes_version : null
-    node_group_name = "${var.cluster_name}-node-group"
-    node_role_arn   = aws_iam_role.eks_node[0].arn
-    subnet_ids      = var.subnet_ids
+  count           = var.create_eks ? 1 : 0
+  cluster_name    = aws_eks_cluster.mycluster[0].name
+  version         = var.kubernetes_version != null ? var.kubernetes_version : null
+  node_group_name = "${var.cluster_name}-node-group"
+  node_role_arn   = aws_iam_role.eks_node[0].arn
+  subnet_ids      = var.subnet_ids
 
-    scaling_config {
-      desired_size = 2
-      max_size     = 3
-      min_size     = 1
-    }
+  scaling_config {
+    desired_size = 2
+    max_size     = 3
+    min_size     = 1
+  }
 
   instance_types = ["t3.medium"]
 }
