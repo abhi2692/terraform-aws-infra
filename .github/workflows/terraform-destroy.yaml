@@ -1,23 +1,14 @@
-name: Terraform AWS Infra
+name: Terraform Destroy
 
 on:
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - '**/README.MD'
-      - '**/README.md'
-      - '.github/workflows/**'
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:
 
 env:
   TF_WORKING_DIR: environments/dev
   TF_VAR_public_key: ${{ secrets.PUBLIC_KEY }}
 
 jobs:
-  terraform:
+  destroy:
     runs-on: ubuntu-latest
 
     steps:
@@ -40,19 +31,6 @@ jobs:
         run: terraform init
         working-directory: ${{ env.TF_WORKING_DIR }}
 
-      - name: Terraform Format
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform fmt -check
-
-      - name: Validate Terraform configuration
-        run: terraform validate
-        working-directory: ${{ env.TF_WORKING_DIR }}
-
-      - name: Plan Terraform changes
-        run: terraform plan -out=tfplan
-        working-directory: ${{ env.TF_WORKING_DIR }}
-
-      - name: Apply Terraform changes
-        if: github.event_name == 'push'
-        run: terraform apply -auto-approve tfplan
+      - name: Destroy Terraform resources
+        run: terraform destroy -auto-approve
         working-directory: ${{ env.TF_WORKING_DIR }}
