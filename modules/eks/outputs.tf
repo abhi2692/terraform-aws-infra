@@ -21,5 +21,5 @@ output "eks_node_iam_role_arn" {
 output "cluster_security_group_id" {
   value       = var.create_eks ? aws_security_group.eks_cluster_sg[0].id : null
   description = "Security Group ID for the EKS cluster"
-  
+
 }

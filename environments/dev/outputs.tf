@@ -47,7 +47,7 @@ output "eks_node_role_arn" {
 }
 
 output "cluster_security_group_id" {
-  value = module.eks.cluster_security_group_id
+  value       = module.eks.cluster_security_group_id
   description = "Security Group ID for the EKS cluster"
 }
 
