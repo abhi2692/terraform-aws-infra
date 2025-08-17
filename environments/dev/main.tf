@@ -51,6 +51,18 @@ module "web_ec2" {
   count                       = var.enable_ec2 ? 1 : 0
 }
 
+# EC2 Bastion Host to access Private EKS
+resource "aws_security_group_rule" "eks_api_from_bastion" {
+  count                    = var.create_eks ? 1 : 0
+  type                     = "ingress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  security_group_id        = module.eks.cluster_security_group_id
+  source_security_group_id = module.bastion_ec2[0].security_group_id
+  description              = "Allow EKS API access from bastion"
+}
+
 module "bastion_ec2" {
   source                      = "../../modules/ec2"
   project                     = "myapp"
