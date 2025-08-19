@@ -57,6 +57,25 @@ resource "aws_iam_role_policy_attachment" "eks_node_AmazonEKS_CNI_Policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
 }
 
+
+# OIDC Provider - enables IRSA for any addon or application
+data "tls_certificate" "eks_oidc_root_ca" {
+  count = var.create_eks ? 1 : 0
+  url   = aws_eks_cluster.mycluster[0].identity[0].oidc[0].issuer
+}
+
+resource "aws_iam_openid_connect_provider" "eks_oidc" {
+  count = var.create_eks ? 1 : 0
+  
+  client_id_list  = ["sts.amazonaws.com"]
+  thumbprint_list = [data.tls_certificate.eks_oidc_root_ca[0].certificates[0].sha1_fingerprint]
+  url             = aws_eks_cluster.mycluster[0].identity[0].oidc[0].issuer
+
+  tags = {
+    Name = "${var.cluster_name}-eks-oidc"
+  }
+}
+
 resource "aws_eks_cluster" "mycluster" {
 
   count    = var.create_eks ? 1 : 0
