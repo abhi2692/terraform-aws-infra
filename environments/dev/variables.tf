@@ -47,7 +47,7 @@ variable "enable_ec2" {
 
 variable "enable_ecs_fargate" {
   type    = bool
-  default = true
+  default = false
 }
 
 # ALB specific variables
