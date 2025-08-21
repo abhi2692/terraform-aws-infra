@@ -76,9 +76,9 @@ module "bastion_ec2" {
   associate_public_ip_address = true
   key_name                    = aws_key_pair.main.key_name
   public_key                  = var.public_key
-  user_data                   = "" # No user data for bastion
   app_port                    = 22 # SSH only
   count                       = 1
+  user_data                   = file("${path.module}/scripts/bastion-bootstrap.sh")
 }
 
 module "alb" {

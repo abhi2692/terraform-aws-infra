@@ -27,10 +27,49 @@ This repo provisions a dedicated EC2 instance (bastion host) in a public subnet 
 **How to use:**
 1. SSH into the bastion using your private key and the output public IP:
    ```bash
-   ssh -i ~/.ssh/id_rsa ec2-user@<bastion_public_ip>
+  ssh -i ~/.ssh/id_rsa ec2-user@<bastion_public_ip>
    ```
 2. From the bastion, you can access EKS, RDS, or other private resources as needed.
 3. The bastion's security group is referenced in security group rules for EKS and can be used for other resources.
+
+### Bastion bootstrap script
+
+The bastion is bootstrapped with a user-data script so it can be used immediately for admin tasks. The script is located at `scripts/bastion-bootstrap.sh` in this repo and is passed into the EC2 module via the `user_data` argument.
+
+What the script installs (example):
+- AWS CLI v2
+- `kubectl` (compatible with your EKS version)
+- Optional tools such as `jq` or `helm` can be added
+
+Example: the `module "bastion_ec2"` in `environments/dev/main.tf` uses:
+
+```hcl
+user_data = file("${path.module}/scripts/bastion-bootstrap.sh")
+```
+
+After the instance is created you can:
+
+- Get the bastion public IP from Terraform outputs:
+
+```bash
+terraform output bastion_public_ip
+```
+
+- SSH into the bastion and verify tools:
+
+```bash
+ssh -i ~/.ssh/id_rsa ec2-user@<bastion_public_ip>
+aws --version
+kubectl version --client
+```
+
+Security notes for the bastion:
+- Restrict SSH access to your IP address in production (do not leave port 22 open to 0.0.0.0/0).
+- Never store private keys in the repo. Use `PUBLIC_KEY` secret for the public key only.
+- Manage the bastion and its security group via Terraform to avoid drift.
+
+CI/CD note:
+- When the bastion EC2 is provisioned by the GitHub Actions pipeline it will run the `user_data` script automatically. No extra manual steps are needed to prepare the instance.
 
 **Best practice:**
 - Reference the bastion's security group in any resource's security group rule to allow admin access from the bastion only.
@@ -74,6 +113,33 @@ To destroy all resources, use the manual workflow:
 1. Go to the **Actions** tab in GitHub.
 2. Select **Terraform Destroy**.
 3. Click **Run workflow**.
+
+
+## EKS Addons & IRSA (IAM Roles for Service Accounts)
+
+This repo demonstrates best practices for managing EKS addons using IRSA and Terraform:
+
+- **IRSA (IAM Roles for Service Accounts):**
+  - Avoids baking node IAM credentials into pods.
+  - Each controller (e.g., ALB Controller, ExternalDNS) gets its own IAM role with least-privilege permissions, assumed via the EKS OIDC provider and a Kubernetes service account.
+
+- **AWS Load Balancer Controller:**
+  - Deployed via the `eks-addons` module using the Terraform Helm provider.
+  - IAM policy is fetched directly from the official AWS repo for up-to-date permissions.
+  - The controller's service account is annotated with the IRSA role ARN for secure AWS API access.
+
+- **How it works:**
+  1. Terraform creates the OIDC provider, IAM policy, and IAM role for the controller.
+  2. The Helm provider installs the controller, referencing the IRSA-enabled service account.
+  3. The controller can now manage ALBs in AWS securely and with least privilege.
+
+- **Extending Addons:**
+  - The same pattern is used for other addons (e.g., ExternalDNS, cert-manager) for modular, secure, and reproducible EKS operations.
+
+**Best Practice:**
+- All EKS addons are managed as code, versioned, and reproducible.
+- IAM policies for controllers are always up-to-date by fetching from the official source.
+- No manual Helm or kubectl steps are required—everything is managed by Terraform.
 
 ## EKS Version Management
 
