@@ -2,6 +2,19 @@ provider "aws" {
   region = "ap-south-1"
 }
 
+data "aws_eks_cluster_auth" "mycluster" {
+  count = var.create_eks ? 1 : 0
+  name  = var.cluster_name
+}
+
+provider "helm" {
+  kubernetes = {
+    host                   = var.create_eks ? module.eks.eks_cluster_endpoint : "https://dummy"
+    cluster_ca_certificate = var.create_eks ? base64decode(module.eks.eks_cluster_certificate_authority_data) : ""
+    token                  = var.create_eks ? data.aws_eks_cluster_auth.mycluster[0].token : ""
+  }
+}
+
 terraform {
   backend "s3" {
     bucket         = "devops-terraform-state-bucket-abhishek"
@@ -126,14 +139,17 @@ module "eks" {
 module "eks_addons" {
   source = "../../modules/eks-addons"
 
-  cluster_name      = module.eks.eks_cluster_name
-  oidc_provider_arn = module.eks.oidc_provider_arn
-  oidc_provider_url = module.eks.oidc_provider_url
-  namespace         = "kube-system"
-  create_eks        = var.create_eks
-
+  cluster_name                           = module.eks.eks_cluster_name
+  oidc_provider_arn                      = module.eks.oidc_provider_arn
+  oidc_provider_url                      = module.eks.oidc_provider_url
+  namespace                              = "kube-system"
+  create_eks                             = var.create_eks
   eks_cluster_endpoint                   = module.eks.eks_cluster_endpoint
   eks_cluster_certificate_authority_data = module.eks.eks_cluster_certificate_authority_data
   region                                 = var.region
   vpc_id                                 = module.vpc.vpc_id
+  providers = {
+    helm = helm
+  }
+  count = var.create_eks ? 1 : 0
 }
