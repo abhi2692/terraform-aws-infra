@@ -4,10 +4,10 @@ provider "aws" {
 
 terraform {
   backend "s3" {
-    bucket  = "devops-terraform-state-bucket-abhishek"
-    key     = "environments/dev/terraform.tfstate"
-    region  = "ap-south-1"
-    encrypt = true
+    bucket         = "devops-terraform-state-bucket-abhishek"
+    key            = "environments/dev/terraform.tfstate"
+    region         = "ap-south-1"
+    encrypt        = true
     dynamodb_table = "terraform-state-lock"
   }
 }
@@ -126,14 +126,14 @@ module "eks" {
 module "eks_addons" {
   source = "../../modules/eks-addons"
 
-  cluster_name                         = module.eks.eks_cluster_name
-  oidc_provider_arn                    = module.eks.oidc_provider_arn
-  oidc_provider_url                    = module.eks.oidc_provider_url
-  namespace                            = "kube-system"
-  create_eks                           = var.create_eks
+  cluster_name      = module.eks.eks_cluster_name
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  oidc_provider_url = module.eks.oidc_provider_url
+  namespace         = "kube-system"
+  create_eks        = var.create_eks
 
-  eks_cluster_endpoint                 = module.eks.eks_cluster_endpoint
+  eks_cluster_endpoint                   = module.eks.eks_cluster_endpoint
   eks_cluster_certificate_authority_data = module.eks.eks_cluster_certificate_authority_data
-  region                               = var.region
-  vpc_id                               = module.vpc.vpc_id
+  region                                 = var.region
+  vpc_id                                 = module.vpc.vpc_id
 }
