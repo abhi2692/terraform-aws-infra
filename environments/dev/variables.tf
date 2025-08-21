@@ -40,7 +40,7 @@ variable "env" {
 
 variable "enable_ec2" {
   type    = bool
-  default = false
+  default = true
 }
 
 # ECS Fargate specific variables
@@ -54,7 +54,7 @@ variable "enable_ecs_fargate" {
 
 variable "enable_alb" {
   type    = bool
-  default = true
+  default = false
 }
 
 # EKS specific variables
@@ -62,7 +62,7 @@ variable "enable_alb" {
 variable "create_eks" {
   description = "Whether to create EKS resources"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "cluster_name" {

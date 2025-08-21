@@ -98,6 +98,38 @@ You can override these via GitHub Actions secrets or by editing `variables.tf`:
 - `create_eks` – Whether to create EKS resources (default: true)
 - `enable_ec2`, `enable_ecs_fargate`, `enable_alb`, `enable_bastion` – Enable/disable respective modules
 
+## Enable / disable modules
+
+Where to change toggles
+- Environment-level toggles live in the environment variables file (for this repo): `environments/dev/variables.tf`.
+- The root module reads those variables and modules typically use `count = var.some_toggle ? 1 : 0` to conditionally create resources.
+
+Common toggle variables
+- `enable_ec2` controls the `web_ec2` module.
+- `enable_bastion` controls the `bastion_ec2` module (if present).
+- `enable_ecs_fargate` controls the ECS Fargate module.
+- `enable_alb` controls the ALB module.
+- `create_eks` controls creation of the EKS cluster, node groups and related resources.
+
+How to change a toggle
+- Edit the environment variables file directly (`environments/dev/variables.tf`) and change the boolean. For example:
+
+- OR export a Terraform variable at runtime (useful for one-off runs or CI):
+
+- Or pass the variable on the `terraform` CLI:
+
+Examples
+- To disable EC2 instances in the `dev` environment, edit `environments/dev/variables.tf` and set:
+
+- Or to disable EC2 only for a single run without editing files:
+
+Notes and caveats
+- Toggling a module from `true` to `false` will cause Terraform to plan to destroy the resources managed by that module on the next `terraform apply`. If you do not want resources destroyed, do not flip the toggle; use other patterns (e.g., remove from state or use lifecycle rules) which are more advanced.
+- Many modules use `count` for conditional creation. When a module is created with `count = 1`, references to its outputs in the root module appear as a list (for example: `module.web_ec2[0].public_ip`). Keep that indexing in mind when wiring outputs and other modules.
+- In CI (GitHub Actions) you can set toggles using environment variables or secrets. For example set the secret `TF_VAR_enable_ec2` to `false` to force the pipeline to plan/apply with EC2 disabled.
+
+If you'd like, I can add a short example `environments/dev/variables.tf` snippet to the README or create a small helper script to toggle these values safely.
+
 ## CI/CD with GitHub Actions
 
 ### Main Pipeline
