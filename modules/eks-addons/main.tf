@@ -1,10 +1,13 @@
+data "aws_eks_cluster_auth" "mycluster" {
+  name = var.cluster_name
+}
+
 provider "helm" {
-  kubernetes {
+  kubernetes = {
     host                   = var.eks_cluster_endpoint
     cluster_ca_certificate = base64decode(var.eks_cluster_certificate_authority_data)
     token                  = data.aws_eks_cluster_auth.mycluster.token
   }
-  
 }
 
 resource "helm_release" "aws_load_balancer_controller" {
@@ -13,32 +16,30 @@ resource "helm_release" "aws_load_balancer_controller" {
   namespace  = var.namespace
   repository = "https://aws.github.io/eks-charts"
   chart      = "aws-load-balancer-controller"
-  version    = "1.8.1" # Use latest stable
+  version    = "1.8.1"
 
-  set {
-    name  = "clusterName"
-    value = var.cluster_name
-  }
-
-  set {
-    name  = "serviceAccount.create"
-    value = "false"
-  }
-
-  set {
-    name  = "serviceAccount.name"
-    value = "aws-load-balancer-controller"
-  }
-
-  set {
-    name  = "region"
-    value = var.region
-  }
-
-  set {
-    name  = "vpcId"
-    value = var.vpc_id
-  }
+  set = [
+    {
+      name  = "clusterName"
+      value = var.cluster_name
+    },
+    {
+      name  = "serviceAccount.create"
+      value = "false"
+    },
+    {
+      name  = "serviceAccount.name"
+      value = "aws-load-balancer-controller"
+    },
+    {
+      name  = "region"
+      value = var.region
+    },
+    {
+      name  = "vpcId"
+      value = var.vpc_id
+    }
+  ]
 }
 
 data "http" "alb_policy" {
@@ -75,6 +76,6 @@ resource "aws_iam_role" "alb_controller" {
 
 resource "aws_iam_role_policy_attachment" "alb_controller" {
   count = var.create_eks ? 1 : 0
-  role       = aws_iam_role.alb_controller.name
-  policy_arn = aws_iam_policy.alb_controller.arn
+  role       = aws_iam_role.alb_controller[0].name
+  policy_arn = aws_iam_policy.alb_controller[0].arn
 }
