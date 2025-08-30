@@ -29,6 +29,7 @@ This repo provisions a dedicated EC2 instance (bastion host) in a public subnet 
    ```bash
   ssh -i ~/.ssh/id_rsa ec2-user@<bastion_public_ip>
   ```
+
 2. From the bastion, you can access EKS, RDS, or other private resources as needed.
 3. The bastion's security group is referenced in security group rules for EKS and can be used for other resources.
 
