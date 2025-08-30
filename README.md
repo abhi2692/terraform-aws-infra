@@ -27,7 +27,7 @@ This repo provisions a dedicated EC2 instance (bastion host) in a public subnet 
 **How to use:**
 1. SSH into the bastion using your private key and the output public IP:
   ```
-bash ssh -i ~/.ssh/id_rsa ec2-user@<bastion_public_ip>
+ssh -i ~/.ssh/id_rsa ec2-user@<bastion_public_ip>
 ```
 
 2. From the bastion, you can access EKS, RDS, or other private resources as needed.
