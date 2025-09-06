@@ -44,6 +44,7 @@ resource "aws_instance" "app" {
   key_name                    = var.key_name
   user_data                   = var.user_data
   vpc_security_group_ids      = [aws_security_group.ec2_sg.id]
+  iam_instance_profile        = var.iam_instance_profile
 
   tags = {
     Name        = "${var.environment}-${var.component}-${var.project}"

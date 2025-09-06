@@ -77,6 +77,7 @@ resource "aws_security_group_rule" "eks_api_from_bastion" {
   description              = "Allow EKS API access from bastion"
 }
 
+# Docker EC2 Instance to host Docker containers
 module "docker_ec2" {
   source                      = "../../modules/ec2"
   project                     = "my-docker-app"
@@ -92,8 +93,44 @@ module "docker_ec2" {
   app_port                    = 22 # SSH only
   count                       = var.enable_docker_ec2 ? 1 : 0
   user_data                   = file("${path.module}/scripts/docker-ec2-bootstrap.sh")
+  iam_instance_profile        = var.enable_docker_ec2 ? aws_iam_instance_profile.docker_ec2_profile[0].name : null
 }
 
+# IAM Role for Docker EC2
+resource "aws_iam_role" "docker_ec2_role" {
+  count = var.enable_docker_ec2 ? 1 : 0
+  name  = "${var.env}-docker-ec2-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "docker_ec2_ecr_policy" {
+  count = var.enable_docker_ec2 ? 1 : 0
+
+  role       = aws_iam_role.docker_ec2_role[0].name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess"
+}
+
+resource "aws_iam_instance_profile" "docker_ec2_profile" {
+  count = var.enable_docker_ec2 ? 1 : 0
+
+  name = "${var.env}-docker-ec2-profile"
+  role = aws_iam_role.docker_ec2_role[0].name
+}
+
+
+# Create bastion host
 module "bastion_ec2" {
   source                      = "../../modules/ec2"
   project                     = "myapp"
