@@ -43,7 +43,7 @@ resource "aws_iam_policy" "alb_controller" {
 
 resource "aws_iam_role" "alb_controller" {
   count = var.create_eks ? 1 : 0
-  name = "${var.cluster_name}-alb-controller-role"
+  name  = "${var.cluster_name}-alb-controller-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -63,7 +63,7 @@ resource "aws_iam_role" "alb_controller" {
 }
 
 resource "aws_iam_role_policy_attachment" "alb_controller" {
-  count = var.create_eks ? 1 : 0
+  count      = var.create_eks ? 1 : 0
   role       = aws_iam_role.alb_controller[0].name
   policy_arn = aws_iam_policy.alb_controller[0].arn
 }
