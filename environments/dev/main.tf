@@ -63,6 +63,23 @@ module "web_ec2" {
   user_data                   = file("${path.module}/scripts/bootstrap.sh")
   app_port                    = 80
   count                       = var.enable_ec2 ? 1 : 0
+
+  ingress_rules = [
+    {
+      from_port       = 22
+      to_port         = 22
+      protocol        = "tcp"
+      security_groups = [module.bastion_ec2.security_group_id]
+      description     = "SSH only from Bastion"
+    },
+    {
+      from_port   = 80
+      to_port     = 80
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+      description = "Public HTTP traffic"
+    }
+  ]
 }
 
 # EC2 Bastion Host to access Private EKS
@@ -94,6 +111,16 @@ module "docker_ec2" {
   count                       = var.enable_docker_ec2 ? 1 : 0
   user_data                   = file("${path.module}/scripts/docker-ec2-bootstrap.sh")
   iam_instance_profile        = var.enable_docker_ec2 ? aws_iam_instance_profile.docker_ec2_profile[0].name : null
+
+  ingress_rules = [
+    {
+      from_port       = 22
+      to_port         = 22
+      protocol        = "tcp"
+      security_groups = [module.bastion_ec2.security_group_id]
+      description     = "SSH only from Bastion"
+    }
+  ]
 }
 
 # IAM Role for Docker EC2
@@ -144,6 +171,16 @@ module "bastion_ec2" {
   public_key    = var.public_key
   app_port      = 22 # SSH only
   user_data     = file("${path.module}/scripts/bastion-bootstrap.sh")
+
+  ingress_rules = [
+    {
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = var.bastion_allowed_ips # e.g. ["YOUR_IP/32"]
+      description = "SSH access from admin IP"
+    }
+  ]
 }
 
 resource "aws_security_group_rule" "bastion_ssh_from_myip" {

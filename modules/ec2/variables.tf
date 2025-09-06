@@ -53,3 +53,16 @@ variable "iam_instance_profile" {
   default     = null
 
 }
+
+variable "ingress_rules" {
+  description = "List of ingress rules for the EC2 SG"
+  type = list(object({
+    from_port       = number
+    to_port         = number
+    protocol        = string
+    cidr_blocks     = optional(list(string))
+    security_groups = optional(list(string))
+    description     = optional(string)
+  }))
+  default = []
+}
