@@ -183,16 +183,6 @@ module "bastion_ec2" {
   ]
 }
 
-resource "aws_security_group_rule" "bastion_ssh_from_myip" {
-  type              = "ingress"
-  from_port         = 22
-  to_port           = 22
-  protocol          = "tcp"
-  security_group_id = module.bastion_ec2.security_group_id
-  cidr_blocks       = var.bastion_allowed_ips
-  description       = "Allow SSH access to bastion from my IP"
-}
-
 # ALB and ECS Fargate setup
 module "alb" {
   count             = var.enable_alb ? 1 : 0
