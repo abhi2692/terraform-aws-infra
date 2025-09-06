@@ -132,18 +132,18 @@ resource "aws_iam_instance_profile" "docker_ec2_profile" {
 
 # Create bastion host
 module "bastion_ec2" {
-  source                      = "../../modules/ec2"
-  project                     = "myapp"
-  environment                 = var.env
-  component                   = "bastion"
-  vpc_id                      = module.vpc.vpc_id
-  ami_id                      = local.al2_ami
-  instance_type               = "t3.micro" # or your preferred type
-  subnet_id                   = module.vpc.public_subnet_ids[0]
-  key_name                    = aws_key_pair.main.key_name
-  public_key                  = var.public_key
-  app_port                    = 22 # SSH only
-  user_data                   = file("${path.module}/scripts/bastion-bootstrap.sh")
+  source        = "../../modules/ec2"
+  project       = "myapp"
+  environment   = var.env
+  component     = "bastion"
+  vpc_id        = module.vpc.vpc_id
+  ami_id        = local.al2_ami
+  instance_type = "t3.micro" # or your preferred type
+  subnet_id     = module.vpc.public_subnet_ids[0]
+  key_name      = aws_key_pair.main.key_name
+  public_key    = var.public_key
+  app_port      = 22 # SSH only
+  user_data     = file("${path.module}/scripts/bastion-bootstrap.sh")
 }
 
 resource "aws_security_group_rule" "bastion_ssh_from_myip" {
