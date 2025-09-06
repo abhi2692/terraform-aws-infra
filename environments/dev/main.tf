@@ -121,11 +121,11 @@ module "docker_ec2" {
       description     = "SSH only from Bastion"
     },
     {
-      from_port       = 80
-      to_port         = 80
-      protocol        = "tcp"
-      cidr_blocks     = var.bastion_allowed_ips
-      description     = "HTTP access only from my ip"
+      from_port   = 80
+      to_port     = 80
+      protocol    = "tcp"
+      cidr_blocks = var.bastion_allowed_ips
+      description = "HTTP access only from my ip"
     }
   ]
 }
