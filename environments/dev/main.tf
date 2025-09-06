@@ -144,8 +144,18 @@ module "bastion_ec2" {
   key_name                    = aws_key_pair.main.key_name
   public_key                  = var.public_key
   app_port                    = 22 # SSH only
-  count                       = 1
   user_data                   = file("${path.module}/scripts/bastion-bootstrap.sh")
+}
+
+resource "aws_security_group_rule" "docker_ec2_ssh_from_bastion" {
+  count = var.enable_docker_ec2 ? 1 : 0
+  type = "ingress"
+  from_port = 22
+  to_port = 22
+  protocol = "tcp"
+  security_group_id = module.docker_ec2[0].security_group_id
+  source_security_group_id = module.bastion_ec2.security_group_id
+  description = "Allow Docker EC2 instance access from bastion"
 }
 
 module "alb" {

@@ -32,7 +32,7 @@ output "docker_ec2_instance_ip" {
 # bastion ec2 outputs
 
 output "bastion_public_ip" {
-  value       = module.bastion_ec2[0].ec2_elastic_ip
+  value       = module.bastion_ec2.ec2_elastic_ip
   description = "Public IP of the bastion EC2 instance"
 }
 
