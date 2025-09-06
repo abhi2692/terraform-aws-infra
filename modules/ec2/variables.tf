@@ -53,9 +53,3 @@ variable "iam_instance_profile" {
   default     = null
 
 }
-
-variable "bastion_allowed_ips" {
-  description = "List of CIDRs allowed to access Bastion"
-  type        = list(string)
-  default     = []
-}

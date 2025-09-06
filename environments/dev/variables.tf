@@ -49,6 +49,14 @@ variable "enable_docker_ec2" {
   default = true
 }
 
+#Bastion specific variables
+
+variable "bastion_allowed_ips" {
+  description = "List of CIDRs allowed to access Bastion"
+  type        = list(string)
+  default     = []
+}
+
 # ECS Fargate specific variables
 
 variable "enable_ecs_fargate" {
