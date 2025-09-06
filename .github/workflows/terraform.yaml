@@ -54,6 +54,5 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
 
       - name: Apply Terraform changes
-        if: github.event_name == 'push'
         run: terraform apply -auto-approve tfplan
         working-directory: ${{ env.TF_WORKING_DIR }}
