@@ -77,6 +77,23 @@ resource "aws_security_group_rule" "eks_api_from_bastion" {
   description              = "Allow EKS API access from bastion"
 }
 
+module "docker_ec2" {
+  source                      = "../../modules/ec2"
+  project                     = "my-docker-app"
+  environment                 = var.env
+  component                   = "docker"
+  vpc_id                      = module.vpc.vpc_id
+  ami_id                      = local.al2_ami
+  instance_type               = "t3.micro" # or your preferred type
+  subnet_id                   = module.vpc.public_subnet_ids[0]
+  associate_public_ip_address = true
+  key_name                    = aws_key_pair.main.key_name
+  public_key                  = var.public_key
+  app_port                    = 22 # SSH only
+  count                       = var.enable_docker_ec2 ? 1 : 0
+  user_data                   = file("${path.module}/scripts/docker-ec2-bootstrap.sh")
+}
+
 module "bastion_ec2" {
   source                      = "../../modules/ec2"
   project                     = "myapp"

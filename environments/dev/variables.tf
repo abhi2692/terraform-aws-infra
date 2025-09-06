@@ -43,6 +43,12 @@ variable "enable_ec2" {
   default = true
 }
 
+# Docker EC2 specific variables
+variable "enable_docker_ec2" {
+  type    = bool
+  default = false
+}
+
 # ECS Fargate specific variables
 
 variable "enable_ecs_fargate" {

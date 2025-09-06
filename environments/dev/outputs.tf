@@ -25,6 +25,10 @@ output "ec2_elastic_ip" {
   value       = var.enable_ec2 ? module.web_ec2[0].ec2_elastic_ip : null
 }
 
+output "docker_ec2_instance_ip" {
+  description = "Ip of the Docker EC2 instance"
+  value       = var.enable_docker_ec2 ? module.docker_ec2[0].ec2_elastic_id : null
+}
 # bastion ec2 outputs
 
 output "bastion_public_ip" {
