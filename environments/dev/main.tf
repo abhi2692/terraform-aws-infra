@@ -119,6 +119,13 @@ module "docker_ec2" {
       protocol        = "tcp"
       security_groups = [module.bastion_ec2.security_group_id]
       description     = "SSH only from Bastion"
+    },
+    {
+      from_port       = 80
+      to_port         = 80
+      protocol        = "tcp"
+      cidr_blocks     = var.bastion_allowed_ips
+      description     = "HTTP access only from my ip"
     }
   ]
 }
