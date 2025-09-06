@@ -140,7 +140,6 @@ module "bastion_ec2" {
   ami_id                      = local.al2_ami
   instance_type               = "t3.micro" # or your preferred type
   subnet_id                   = module.vpc.public_subnet_ids[0]
-  associate_public_ip_address = true
   key_name                    = aws_key_pair.main.key_name
   public_key                  = var.public_key
   app_port                    = 22 # SSH only

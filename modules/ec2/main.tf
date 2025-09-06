@@ -5,17 +5,21 @@ resource "aws_eip" "ec2_eip" {
   }
 }
 
+resource "aws_security_group_rule" "bastion_ssh_from_myip" {
+  count             = length(var.bastion_allowed_ips)
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  security_group_id = module.bastion_ec2.security_group_id
+  cidr_blocks       = var.bastion_allowed_ips[count.index] # Replace with your IP
+  description       = "Allow SSH access to bastion from my IP"
+}
+
 resource "aws_security_group" "ec2_sg" {
   name        = "${var.project}-${var.environment}-${var.component}-sg"
   description = "Allow SSH and app access"
   vpc_id      = var.vpc_id
-
-  ingress {
-    from_port   = var.app_port
-    to_port     = var.app_port
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
 
   egress {
     from_port   = 0
