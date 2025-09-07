@@ -107,7 +107,8 @@ Where to change toggles
 
 Common toggle variables
 - `enable_ec2` controls the `web_ec2` module.
-- `enable_bastion` controls the `bastion_ec2` module (if present).
+- `enable_docker_ec2` controls the `docker_ec2` module.
+- `enable_bastion` controls the `bastion_ec2` module.
 - `enable_ecs_fargate` controls the ECS Fargate module.
 - `enable_alb` controls the ALB module.
 - `create_eks` controls creation of the EKS cluster, node groups and related resources.
