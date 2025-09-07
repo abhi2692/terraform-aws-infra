@@ -36,12 +36,6 @@ output "bastion_public_ip" {
   description = "Public IP of the bastion EC2 instance"
 }
 
-output "bastion_sg_id" {
-  value       = module.bastion_ec2.bastion_sg_id
-  description = "Security Group ID of the Bastion Host"
-  
-}
-
 # EKS Outputs
 
 output "eks_cluster_name" {
