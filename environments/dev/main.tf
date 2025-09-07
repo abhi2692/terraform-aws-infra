@@ -156,7 +156,7 @@ module "docker_ec2" {
       from_port   = 22
       to_port     = 22
       protocol    = "tcp"
-      cidr_blocks = "0.0.0.0/0"
+      cidr_blocks = ["0.0.0.0/0"]
       description = "Temporary SSH access from anywhere (for GitHub Actions)"
     }
   ]
