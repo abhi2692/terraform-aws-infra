@@ -40,7 +40,7 @@ variable "env" {
 
 variable "enable_ec2" {
   type    = bool
-  default = true
+  default = false
 }
 
 variable "my_ip" {

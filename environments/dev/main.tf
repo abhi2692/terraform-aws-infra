@@ -151,6 +151,13 @@ module "docker_ec2" {
       protocol    = "tcp"
       cidr_blocks = [var.my_ip]
       description = "Flask app access only from my IP"
+    },
+    {
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = "0.0.0.0/0"
+      description = "Temporary SSH access from anywhere (for GitHub Actions)"
     }
   ]
 
