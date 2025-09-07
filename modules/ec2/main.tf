@@ -16,25 +16,33 @@ resource "aws_security_group" "ec2_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
-  # Add ingress rules dynamically
-  dynamic "ingress" {
-  for_each = var.ingress_rules
-  content {
-    from_port   = ingress.value.from_port
-    to_port     = ingress.value.to_port
-    protocol    = ingress.value.protocol
-    description = lookup(ingress.value, "description", "")
-
-    # Only set if the list exists and has at least one element
-    cidr_blocks     = try(ingress.value.cidr_blocks, []) != [] ? ingress.value.cidr_blocks : null
-    security_groups = try(ingress.value.security_groups, []) != [] ? ingress.value.security_groups : null
-    }
-  }
-
   tags = {
     Name = "${var.project}-${var.environment}-${var.component}-sg"
   }
+}
+
+resource "aws_security_group_rule" "ingress_cidr" {
+
+  for_each = { for i, rule in var.ingress_cidr_rules : i => rule }
+  type              = "ingress"
+  from_port         = each.value.from_port
+  to_port           = each.value.to_port
+  protocol          = each.value.protocol
+  security_group_id = aws_security_group.ec2_sg.id
+  cidr_blocks       = each.value.cidr_blocks
+  description       = each.value.description
+}
+
+resource "aws_security_group_rule" "ingress_sg" {
+  for_each = { for i, rule in var.ingress_sg_rules : i => rule }
+
+  type                     = "ingress"
+  from_port                = each.value.from_port
+  to_port                  = each.value.to_port
+  protocol                 = each.value.protocol
+  security_group_id        = aws_security_group.ec2_sg.id
+  source_security_group_id = each.value.source_security_group_id
+  description              = each.value.description
 }
 
 resource "aws_instance" "app" {

@@ -54,15 +54,27 @@ variable "iam_instance_profile" {
 
 }
 
-variable "ingress_rules" {
-  description = "List of ingress rules for the EC2 SG"
+variable "ingress_cidr_rules" {
+  description = "List of ingress rules based on CIDR blocks"
   type = list(object({
-    from_port       = number
-    to_port         = number
-    protocol        = string
-    cidr_blocks     = optional(list(string))
-    security_groups = optional(list(string))
-    description     = optional(string)
+    from_port   = number
+    to_port     = number
+    protocol    = string
+    cidr_blocks = list(string)
+    description = string
   }))
   default = []
 }
+
+variable "ingress_sg_rules" {
+  description = "List of ingress rules based on Security Groups"
+  type = list(object({
+    from_port                = number
+    to_port                  = number
+    protocol                 = string
+    source_security_group_id = string
+    description              = string
+  }))
+  default = []
+}
+

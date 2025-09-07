@@ -43,6 +43,17 @@ variable "enable_ec2" {
   default = true
 }
 
+variable "my_ip" {
+  description = "Your personal IP address for restricted access"
+  type        = string
+}
+
+variable "ingress_security_groups" {
+  type        = list(string)
+  default     = []
+  description = "List of security groups allowed to access this instance"
+}
+
 # Docker EC2 specific variables
 variable "enable_docker_ec2" {
   type    = bool

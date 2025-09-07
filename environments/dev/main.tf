@@ -48,6 +48,35 @@ locals {
   al2_ami = data.aws_ssm_parameter.al2_ami.value
 }
 
+module "bastion_ec2" {
+  source                      = "../../modules/ec2"
+  project                     = "myapp"
+  environment                 = var.env
+  component                   = "bastion"
+  vpc_id                      = module.vpc.vpc_id
+  ami_id                      = local.al2_ami
+  instance_type               = var.instance_type
+  subnet_id                   = module.vpc.public_subnet_ids[0]
+  associate_public_ip_address = true
+  key_name                    = aws_key_pair.main.key_name
+  public_key                  = var.public_key
+  app_port                    = 22
+  # count                       = 1
+  user_data = file("${path.module}/scripts/bootstrap.sh")
+
+  ingress_cidr_rules = [
+    {
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = [var.my_ip]
+      description = "SSH access to Bastion from allowed IPs"
+    }
+  ]
+
+  ingress_sg_rules = []
+}
+
 module "web_ec2" {
   source                      = "../../modules/ec2"
   project                     = "myapp"
@@ -64,20 +93,23 @@ module "web_ec2" {
   app_port                    = 80
   count                       = var.enable_ec2 ? 1 : 0
 
-  ingress_rules = [
-    {
-      from_port       = 22
-      to_port         = 22
-      protocol        = "tcp"
-      security_groups = [module.bastion_ec2.security_group_id]
-      description     = "SSH only from Bastion"
-    },
+  ingress_cidr_rules = [
     {
       from_port   = 80
       to_port     = 80
       protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
-      description = "Public HTTP traffic"
+      cidr_blocks = [var.my_ip] # restrict app access to your IP
+      description = "Allow HTTP access from my IP"
+    }
+  ]
+
+  ingress_sg_rules = [
+    {
+      from_port                = 22
+      to_port                  = 22
+      protocol                 = "tcp"
+      source_security_group_id = module.bastion_ec2.security_group_id
+      description              = "SSH only from Bastion"
     }
   ]
 }
@@ -102,30 +134,33 @@ module "docker_ec2" {
   component                   = "docker"
   vpc_id                      = module.vpc.vpc_id
   ami_id                      = local.al2_ami
-  instance_type               = "t3.micro" # or your preferred type
+  instance_type               = "t3.micro"
   subnet_id                   = module.vpc.public_subnet_ids[0]
   associate_public_ip_address = true
   key_name                    = aws_key_pair.main.key_name
   public_key                  = var.public_key
-  app_port                    = 22 # SSH only
+  app_port                    = 5000 # Flask app
   count                       = var.enable_docker_ec2 ? 1 : 0
   user_data                   = file("${path.module}/scripts/docker-ec2-bootstrap.sh")
   iam_instance_profile        = var.enable_docker_ec2 ? aws_iam_instance_profile.docker_ec2_profile[0].name : null
 
-  ingress_rules = [
-    {
-      from_port       = 22
-      to_port         = 22
-      protocol        = "tcp"
-      security_groups = [module.bastion_ec2.security_group_id]
-      description     = "SSH only from Bastion"
-    },
+  ingress_cidr_rules = [
     {
       from_port   = 80
       to_port     = 80
       protocol    = "tcp"
-      cidr_blocks = var.bastion_allowed_ips
-      description = "HTTP access only from my IP"
+      cidr_blocks = [var.my_ip]
+      description = "Flask app access only from my IP"
+    }
+  ]
+
+  ingress_sg_rules = [
+    {
+      from_port                = 22
+      to_port                  = 22
+      protocol                 = "tcp"
+      source_security_group_id = module.bastion_ec2.security_group_id
+      description              = "SSH only from Bastion"
     }
   ]
 }
@@ -161,33 +196,6 @@ resource "aws_iam_instance_profile" "docker_ec2_profile" {
 
   name = "${var.env}-docker-ec2-profile"
   role = aws_iam_role.docker_ec2_role[0].name
-}
-
-
-# Create bastion host
-module "bastion_ec2" {
-  source        = "../../modules/ec2"
-  project       = "myapp"
-  environment   = var.env
-  component     = "bastion"
-  vpc_id        = module.vpc.vpc_id
-  ami_id        = local.al2_ami
-  instance_type = "t3.micro" # or your preferred type
-  subnet_id     = module.vpc.public_subnet_ids[0]
-  key_name      = aws_key_pair.main.key_name
-  public_key    = var.public_key
-  app_port      = 22 # SSH only
-  user_data     = file("${path.module}/scripts/bastion-bootstrap.sh")
-
-  ingress_rules = [
-    {
-      from_port   = 22
-      to_port     = 22
-      protocol    = "tcp"
-      cidr_blocks = var.bastion_allowed_ips # e.g. ["YOUR_IP/32"]
-      description = "SSH access from admin IP"
-    }
-  ]
 }
 
 # ALB and ECS Fargate setup
