@@ -23,7 +23,7 @@ resource "aws_security_group" "ec2_sg" {
 
 resource "aws_security_group_rule" "ingress_cidr" {
 
-  for_each = { for i, rule in var.ingress_cidr_rules : i => rule }
+  for_each          = { for i, rule in var.ingress_cidr_rules : i => rule }
   type              = "ingress"
   from_port         = each.value.from_port
   to_port           = each.value.to_port
