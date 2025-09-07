@@ -46,7 +46,7 @@ variable "enable_ec2" {
 variable "my_ip" {
   description = "Your personal IP address for restricted access"
   type        = string
-  default = "0.0.0.0/0"
+  default     = "0.0.0.0/0"
 }
 
 variable "ingress_security_groups" {
