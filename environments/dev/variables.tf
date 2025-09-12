@@ -58,7 +58,7 @@ variable "ingress_security_groups" {
 # Docker EC2 specific variables
 variable "enable_docker_ec2" {
   type    = bool
-  default = true
+  default = false
 }
 
 #Bastion specific variables
@@ -73,14 +73,14 @@ variable "bastion_allowed_ips" {
 
 variable "enable_ecs_fargate" {
   type    = bool
-  default = false
+  default = true
 }
 
 # ALB specific variables
 
 variable "enable_alb" {
   type    = bool
-  default = false
+  default = true
 }
 
 # EKS specific variables

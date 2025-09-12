@@ -61,8 +61,7 @@ module "bastion_ec2" {
   key_name                    = aws_key_pair.main.key_name
   public_key                  = var.public_key
   app_port                    = 22
-  # count                       = 1
-  user_data = file("${path.module}/scripts/bootstrap.sh")
+  user_data                   = file("${path.module}/scripts/bootstrap.sh")
 
   ingress_cidr_rules = [
     {
